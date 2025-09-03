@@ -7,6 +7,9 @@ let currentQuestionIndex = 0;
 let questions = [];
 let userProgress = {};
 let gameMode = 'multiple'; // 'multiple' or 'input'
+let secondChanceActive = false;
+let lastAttemptCorrect = false;
+let lastWrongAnswer = '';
 
 // User data storage (using localStorage)
 const STORAGE_KEY = 'kidsMathsApp';
@@ -43,6 +46,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Event Listeners
 function setupEventListeners() {
+    // ...existing code...
+    // Add previous wrong answer display element
+    if (!document.getElementById('previousWrongAnswer')) {
+        const prevDiv = document.createElement('div');
+        prevDiv.id = 'previousWrongAnswer';
+        prevDiv.style.display = 'none';
+        prevDiv.style.margin = '10px 0';
+        prevDiv.style.fontSize = '1.2em';
+        prevDiv.style.color = '#e53e3e';
+        prevDiv.style.fontWeight = 'bold';
+        prevDiv.innerHTML = '';
+        document.getElementById('directInput').appendChild(prevDiv);
+    }
+    // Second chance modal button
+    document.getElementById('tryAgainBtn').addEventListener('click', function() {
+        document.getElementById('secondChanceModal').classList.add('hidden');
+        // Re-show input for another try
+        document.getElementById('directInput').classList.remove('hidden');
+        document.getElementById('submitBtn').style.display = '';
+        document.getElementById('answerInput').focus();
+    });
     // Login screen
     document.getElementById('loginBtn').addEventListener('click', handleLogin);
     document.getElementById('newUserBtn').addEventListener('click', handleNewUser);
@@ -119,7 +143,20 @@ function showTopicModal(topic) {
 }
     
     // Game screen
-    document.getElementById('backBtn').addEventListener('click', () => showScreen('dashboard'));
+    document.getElementById('backBtn').addEventListener('click', function() {
+        // Show quit confirmation modal instead of going straight back
+        const modal = document.getElementById('quitLevelModal');
+        modal.classList.remove('hidden');
+        // Confirm quit
+        document.getElementById('confirmQuitBtn').onclick = function() {
+            modal.classList.add('hidden');
+            showScreen('dashboard');
+        };
+        // Cancel quit
+        document.getElementById('cancelQuitBtn').onclick = function() {
+            modal.classList.add('hidden');
+        };
+    });
     document.getElementById('submitBtn').addEventListener('click', handleDirectAnswer);
     document.getElementById('nextBtn').addEventListener('click', nextQuestion);
     
@@ -138,6 +175,13 @@ function showTopicModal(topic) {
         if (e.key === 'Enter') {
             handleDirectAnswer();
         }
+    });
+
+    // Wrong answer modal close button
+    document.getElementById('closeWrongAnswerBtn').addEventListener('click', function() {
+        document.getElementById('wrongAnswerModal').classList.add('hidden');
+        // After closing, continue to next question
+        nextQuestion();
     });
 }
 
@@ -279,15 +323,21 @@ function getTopicTitle(topic) {
 function generateQuestions(topic, level) {
     const questionGenerators = {
         addition: generateAdditionQuestions,
+        subtraction: generateSubtractionQuestions,
         multiplication: generateMultiplicationQuestions,
+        division: generateDivisionQuestions,
         fractions: generateFractionQuestions,
         measurement: generateMeasurementQuestions,
         shapes: generateShapeQuestions,
         statistics: generateStatisticsQuestions,
         numbers: generateNumberQuestions
     };
-    
-    return questionGenerators[topic](level);
+    if (questionGenerators[topic]) {
+        return questionGenerators[topic](level);
+    } else {
+        // fallback: show addition questions
+        return generateAdditionQuestions(level);
+    }
 }
 
 function generateAdditionQuestions(level) {
@@ -333,6 +383,77 @@ function generateAdditionQuestions(level) {
                 questionText = `What is ${num1} - ${num2}?`;
                 answer = num1 - num2;
             }
+        }
+        if (!usedQuestions.has(questionText)) {
+            questions.push({ question: questionText, answer, type });
+            usedQuestions.add(questionText);
+        }
+    }
+    return questions;
+}
+
+// Subtraction questions
+function generateSubtractionQuestions(level) {
+    const questions = [];
+    const numQuestions = 10;
+    const usedQuestions = new Set();
+    while (questions.length < numQuestions) {
+        let questionText = '';
+        let answer = null;
+        let type = 'input';
+        if (level === 1) {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            const larger = Math.max(num1, num2);
+            const smaller = Math.min(num1, num2);
+            questionText = `What is ${larger} - ${smaller}?`;
+            answer = larger - smaller;
+        } else if (level === 2) {
+            const num1 = Math.floor(Math.random() * 50) + 10;
+            const num2 = Math.floor(Math.random() * 30) + 5;
+            questionText = `What is ${num1} - ${num2}?`;
+            answer = num1 - num2;
+        } else {
+            const num1 = Math.floor(Math.random() * 500) + 100;
+            const num2 = Math.floor(Math.random() * 200) + 50;
+            questionText = `What is ${num1} - ${num2}?`;
+            answer = num1 - num2;
+        }
+        if (!usedQuestions.has(questionText)) {
+            questions.push({ question: questionText, answer, type });
+            usedQuestions.add(questionText);
+        }
+    }
+    return questions;
+}
+
+// Division questions
+function generateDivisionQuestions(level) {
+    const questions = [];
+    const numQuestions = 10;
+    const usedQuestions = new Set();
+    while (questions.length < numQuestions) {
+        let questionText = '';
+        let answer = null;
+        let type = 'input';
+        if (level === 1) {
+            const divisor = Math.floor(Math.random() * 5) + 2;
+            const quotient = Math.floor(Math.random() * 10) + 1;
+            const dividend = divisor * quotient;
+            questionText = `What is ${dividend} ÷ ${divisor}?`;
+            answer = quotient;
+        } else if (level === 2) {
+            const divisor = Math.floor(Math.random() * 10) + 2;
+            const quotient = Math.floor(Math.random() * 10) + 1;
+            const dividend = divisor * quotient;
+            questionText = `What is ${dividend} ÷ ${divisor}?`;
+            answer = quotient;
+        } else {
+            const divisor = Math.floor(Math.random() * 12) + 2;
+            const quotient = Math.floor(Math.random() * 20) + 1;
+            const dividend = divisor * quotient;
+            questionText = `What is ${dividend} ÷ ${divisor}?`;
+            answer = quotient;
         }
         if (!usedQuestions.has(questionText)) {
             questions.push({ question: questionText, answer, type });
@@ -574,6 +695,9 @@ function generateNumberQuestions(level) {
 
 // Question Handling
 function nextQuestion() {
+    // Hide previous wrong answer box for new question
+    const prevWrongBox = document.getElementById('previousWrongBox');
+    if (prevWrongBox) prevWrongBox.style.display = 'none';
     if (currentQuestionIndex >= questions.length) {
         endGame();
         return;
@@ -593,7 +717,6 @@ function nextQuestion() {
     if (question.type === 'multiple') {
         document.getElementById('multipleChoice').classList.remove('hidden');
         document.getElementById('directInput').classList.add('hidden');
-        
         const buttons = document.querySelectorAll('.choice-btn');
         question.options.forEach((option, index) => {
             buttons[index].textContent = option;
@@ -602,8 +725,40 @@ function nextQuestion() {
     } else {
         document.getElementById('directInput').classList.remove('hidden');
         document.getElementById('multipleChoice').classList.add('hidden');
-        document.getElementById('answerInput').value = '';
-        document.getElementById('answerInput').focus();
+        const answerInput = document.getElementById('answerInput');
+        answerInput.value = '';
+        // Show submit button for new question
+        document.getElementById('submitBtn').style.display = '';
+        // Render number pad
+        const numberPad = document.getElementById('numberPad');
+        numberPad.innerHTML = '';
+        const padButtons = [
+            '1','2','3','4','5','6','7','8','9','0',
+            '+','−','×','÷','=','.', '/', ':','%','(',')','←'
+        ];
+        padButtons.forEach(val => {
+            const btn = document.createElement('button');
+            btn.textContent = val;
+            btn.className = 'numberpad-btn';
+            btn.style.minWidth = '56px';
+            btn.style.minHeight = '56px';
+            btn.style.margin = '4px';
+            btn.style.fontSize = '1.5em';
+            btn.style.background = '#fff';
+            btn.style.color = '#333';
+            btn.style.border = '3px solid #667eea';
+            btn.style.borderRadius = '12px';
+            btn.style.boxShadow = '0 2px 8px rgba(102,126,234,0.12)';
+            btn.style.fontWeight = 'bold';
+            btn.onclick = function() {
+                if (val === '←') {
+                    answerInput.value = answerInput.value.slice(0, -1);
+                } else {
+                    answerInput.value += val;
+                }
+            };
+            numberPad.appendChild(btn);
+        });
     }
 }
 
@@ -626,56 +781,106 @@ function handleMultipleChoice(choiceIndex) {
 
 function handleDirectAnswer() {
     const question = questions[currentQuestionIndex];
-    const userAnswer = document.getElementById('answerInput').value.trim();
+    const answerInput = document.getElementById('answerInput');
+    const userAnswer = answerInput.value.trim();
+    const submitBtn = document.getElementById('submitBtn');
+    const prevWrongBox = document.getElementById('previousWrongBox');
+    const prevWrongText = document.getElementById('previousWrongText');
     // Prevent empty answer
     if (userAnswer === '') {
         alert('Please type your answer before checking!');
-        document.getElementById('answerInput').focus();
+        answerInput.focus();
         return;
     }
+    // Hide submit button after pressed
+    submitBtn.style.display = 'none';
     let isCorrect = false;
     if (question.type === 'input') {
         isCorrect = parseInt(userAnswer) === question.answer;
     } else if (question.type === 'text') {
         isCorrect = userAnswer.toLowerCase() === question.answer.toLowerCase();
     }
+    if (!secondChanceActive && !isCorrect) {
+        // First wrong attempt, show second chance modal
+        document.getElementById('secondChanceModal').classList.remove('hidden');
+        document.getElementById('directInput').classList.add('hidden');
+        secondChanceActive = true;
+        lastAttemptCorrect = false;
+        lastWrongAnswer = userAnswer;
+        return;
+    }
+    // If second chance is active, this is the second attempt
+    lastAttemptCorrect = isCorrect;
     showFeedback(isCorrect);
+    // ...existing code...
+    document.getElementById('tryAgainBtn').addEventListener('click', function() {
+        document.getElementById('secondChanceModal').classList.add('hidden');
+        // Re-show input for another try
+        document.getElementById('directInput').classList.remove('hidden');
+        document.getElementById('submitBtn').style.display = '';
+        document.getElementById('answerInput').value = '';
+        document.getElementById('answerInput').focus();
+        // Show previous wrong answer in styled box
+        const prevWrongBox = document.getElementById('previousWrongBox');
+        const prevWrongText = document.getElementById('previousWrongText');
+        prevWrongText.textContent = lastWrongAnswer;
+        prevWrongBox.style.display = 'flex';
+    });
+    document.getElementById('closeWrongAnswerBtn').addEventListener('click', function() {
+        document.getElementById('wrongAnswerModal').classList.add('hidden');
+        // After closing, continue to next question
+        // Hide previous wrong answer display for next question
+        const prevWrongBox = document.getElementById('previousWrongBox');
+        prevWrongBox.style.display = 'none';
+        nextQuestion();
+    });
 }
 
 function showFeedback(isCorrect) {
     const feedback = document.getElementById('feedback');
     const feedbackText = document.querySelector('.feedback-text');
-    
+    const wrongModal = document.getElementById('wrongAnswerModal');
+    const wrongAnswerText = document.getElementById('wrongAnswerText');
     const question = questions[currentQuestionIndex];
     if (isCorrect) {
+        // Award score for correct first or second attempt
         currentScore += 10;
         document.getElementById('currentScore').textContent = currentScore;
         feedback.className = 'feedback correct';
         feedbackText.textContent = encouragingMessages[Math.floor(Math.random() * encouragingMessages.length)];
+        feedback.classList.remove('hidden');
+        currentQuestionIndex++;
+        document.getElementById('nextBtn').classList.add('hidden');
+        setTimeout(() => {
+            feedback.classList.add('hidden');
+            secondChanceActive = false;
+            nextQuestion();
+        }, 2000);
     } else {
-        feedback.className = 'feedback incorrect';
-        let correctMsg = '';
-        if (question.type === 'multiple') {
-            // Highlight correct button
-            const buttons = document.querySelectorAll('.choice-btn');
-            question.options.forEach((option, idx) => {
-                if (option === question.answer) {
-                    buttons[idx].classList.add('correct');
-                }
-            });
-            correctMsg = `The correct answer was: ${question.answer}`;
+        if (secondChanceActive) {
+            // Second wrong attempt, show correct answer modal
+            let correctMsg = '';
+            if (question.type === 'multiple') {
+                // Highlight correct button
+                const buttons = document.querySelectorAll('.choice-btn');
+                question.options.forEach((option, idx) => {
+                    if (option === question.answer) {
+                        buttons[idx].classList.add('correct');
+                    }
+                });
+                correctMsg = `The correct answer was: <b>${question.answer}</b>`;
+            } else {
+                correctMsg = `The correct answer was: <b>${question.answer}</b>`;
+            }
+            wrongAnswerText.innerHTML = tryAgainMessages[Math.floor(Math.random() * tryAgainMessages.length)] + '<br><br>' + correctMsg;
+            wrongModal.classList.remove('hidden');
+            feedback.classList.add('hidden');
+            currentQuestionIndex++;
+            secondChanceActive = false;
         } else {
-            correctMsg = `The correct answer was: ${question.answer}`;
+            // Should not reach here, as first wrong attempt is handled in handleDirectAnswer
         }
-        feedbackText.textContent = tryAgainMessages[Math.floor(Math.random() * tryAgainMessages.length)] + '\n' + correctMsg;
     }
-    feedback.classList.remove('hidden');
-    currentQuestionIndex++;
-    document.getElementById('nextBtn').classList.add('hidden');
-    setTimeout(() => {
-        feedback.classList.add('hidden');
-        nextQuestion();
-    }, 2500);
 }
 
 function endGame() {
