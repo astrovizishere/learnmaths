@@ -1,3 +1,24 @@
+/* Number Pad Buttons */
+.numberpad-btn {
+    background: #fff;
+    color: #333;
+    border: 3px solid #667eea;
+    border-radius: 12px;
+    min-width: 56px;
+    min-height: 56px;
+    margin: 4px;
+    font-size: 1.5em;
+    font-family: 'Comic Neue', cursive;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(102,126,234,0.12);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.numberpad-btn:hover {
+    background: #667eea;
+    color: #fff;
+    border-color: #764ba2;
+}
 /* Reset and Base Styles */
 * {
     margin: 0;
