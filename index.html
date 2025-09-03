@@ -1,3 +1,12 @@
+<!-- Quit Level Confirmation Modal -->
+    <div id="quitLevelModal" class="modal hidden">
+        <div class="modal-content" style="max-width:400px; min-width:300px; padding:32px 32px 24px 32px; border-radius:24px; text-align:center;">
+            <h2>Quit Level?</h2>
+            <p>Are you sure you want to quit this level? Your progress will be lost.</p>
+            <button id="confirmQuitBtn" class="big-button" style="margin-right:10px;">Yes, quit</button>
+            <button id="cancelQuitBtn" class="big-button secondary-btn">No, continue</button>
+        </div>
+    </div>
     <!-- Topic Learning Modal -->
     <div id="topicModal" class="modal hidden">
         <div class="modal-content" style="max-width:700px; min-width:350px; padding:32px 32px 24px 32px; border-radius:24px;">
@@ -159,7 +168,13 @@
                 </div>
 
                 <div id="directInput" class="hidden">
-                    <input type="number" id="answerInput" placeholder="Type your answer">
+                    <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:16px;">
+                        <input type="text" id="answerInput" placeholder="Type your answer" readonly>
+                        <div id="previousWrongBox" style="display:none; min-width:80px; padding:12px 18px; background:#fff; border:3px solid #e53e3e; border-radius:12px; color:#e53e3e; font-size:1.2em; font-weight:bold; align-items:center; justify-content:center;">
+                            <span id="previousWrongText"></span> <span style="font-size:1.3em; margin-left:6px;">✗</span>
+                        </div>
+                    </div>
+                    <div id="numberPad" style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:16px 0 8px 0;"></div>
                     <button id="submitBtn" class="big-button">Submit Answer! ✓</button>
                 </div>
             </div>
@@ -168,6 +183,24 @@
                 <div class="feedback-icon"></div>
                 <p class="feedback-text"></p>
                 <button id="nextBtn" class="big-button">Next Question! →</button>
+            </div>
+
+            <!-- Second Chance Modal -->
+            <div id="secondChanceModal" class="modal hidden">
+                <div class="modal-content" style="max-width:400px; min-width:300px; padding:32px 32px 24px 32px; border-radius:24px; text-align:center;">
+                    <h2 style="color:#e67e22;">That's not quite right!</h2>
+                    <p id="secondChanceText" style="font-size:1.3em; margin:18px 0; color:#333;">Would you like to try again?</p>
+                    <button id="tryAgainBtn" class="big-button" style="background:#e67e22; color:#fff;">Try Again</button>
+                </div>
+            </div>
+
+            <!-- Wrong Answer Modal (after second try) -->
+            <div id="wrongAnswerModal" class="modal hidden">
+                <div class="modal-content" style="max-width:400px; min-width:300px; padding:32px 32px 24px 32px; border-radius:24px; text-align:center;">
+                    <h2 style="color:#e53e3e;">Oops! That's not correct</h2>
+                    <p id="wrongAnswerText" style="font-size:1.3em; margin:18px 0; color:#333;"></p>
+                    <button id="closeWrongAnswerBtn" class="big-button" style="background:#e53e3e; color:#fff;">OK, got it!</button>
+                </div>
             </div>
         </div>
 
