@@ -1,0 +1,210 @@
+    <!-- Topic Learning Modal -->
+    <div id="topicModal" class="modal hidden">
+        <div class="modal-content" style="max-width:700px; min-width:350px; padding:32px 32px 24px 32px; border-radius:24px;">
+            <span id="closeTopicModal" style="float:right; font-size:2em; cursor:pointer;">&times;</span>
+            <h2 id="modalTopicTitle"></h2>
+            <p id="modalTopicDesc"></p>
+            <div id="modalTopicVideo" style="margin:20px 0;"></div>
+            <div id="modalTopicButtons">
+                <button id="showTopicVideoBtn" class="big-button">Learn about this topic</button>
+                <button id="continueTopicBtn" class="big-button secondary-btn">Continue to questions</button>
+            </div>
+        </div>
+    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Maths Learning - For Kids!</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen">
+        <div class="login-container">
+            <h1 class="main-title">🌟 Fun Maths Learning! 🌟</h1>
+            <p class="subtitle">Welcome to your magical maths adventure!</p>
+            
+            <div class="login-form">
+                <h2>Join the Fun!</h2>
+                <input type="text" id="username" placeholder="Choose your superhero name" maxlength="20">
+                <input type="number" id="password" placeholder="Pick your secret number (4 digits)" max="9999" min="1000">
+                <button id="loginBtn" class="big-button login-btn">Start Learning! 🚀</button>
+                <button id="newUserBtn" class="big-button secondary-btn">I'm New Here! ✨</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="screen hidden">
+        <div class="header">
+            <h1>Welcome back, <span id="currentUser"></span>! 🎉</h1>
+            <div class="user-stats">
+                <span class="stars">⭐ <span id="userStars">0</span></span>
+                <span class="points">🏆 <span id="userPoints">0</span></span>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+
+        <div class="topic-grid">
+            <div class="topic-card" data-topic="addition">
+                <div class="topic-icon">➕</div>
+                <h3>Addition</h3>
+                <p>Learn to add numbers!</p>
+                <div class="progress-bar">
+                    <div class="progress" data-progress="addition"></div>
+                </div>
+            </div>
+            <div class="topic-card" data-topic="subtraction">
+                <div class="topic-icon">➖</div>
+                <h3>Subtraction</h3>
+                <p>Learn to subtract numbers!</p>
+                <div class="progress-bar">
+                    <div class="progress" data-progress="subtraction"></div>
+                </div>
+            </div>
+            <div class="topic-card" data-topic="multiplication">
+                <div class="topic-icon">✖️</div>
+                <h3>Multiplication</h3>
+                <p>Master your times tables!</p>
+                <div class="progress-bar">
+                    <div class="progress" data-progress="multiplication"></div>
+                </div>
+            </div>
+            <div class="topic-card" data-topic="division">
+                <div class="topic-icon">➗</div>
+                <h3>Division</h3>
+                <p>Learn to divide numbers!</p>
+                <div class="progress-bar">
+                    <div class="progress" data-progress="division"></div>
+                </div>
+            </div>
+            <div class="topic-card" data-topic="fractions">
+                <div class="topic-icon">🍕</div>
+                <h3>Fractions</h3>
+                <p>Learn about parts of a whole!</p>
+                <div class="progress-bar">
+                    <div class="progress" data-progress="fractions"></div>
+                </div>
+            </div>
+            <div class="topic-card" data-topic="measurement">
+                <div class="topic-icon">📏</div>
+                <h3>Measurement</h3>
+                <p>Time, money, length and more!</p>
+                <div class="progress-bar">
+                    <div class="progress" data-progress="measurement"></div>
+                </div>
+            </div>
+            <div class="topic-card" data-topic="shapes">
+                <div class="topic-icon">🔵</div>
+                <h3>Shapes & Geometry</h3>
+                <p>Explore 2D and 3D shapes!</p>
+                <div class="progress-bar">
+                    <div class="progress" data-progress="shapes"></div>
+                </div>
+            </div>
+            <div class="topic-card" data-topic="statistics">
+                <div class="topic-icon">📊</div>
+                <h3>Charts & Data</h3>
+                <p>Read charts and graphs!</p>
+                <div class="progress-bar">
+                    <div class="progress" data-progress="statistics"></div>
+                </div>
+            </div>
+            <div class="topic-card" data-topic="numbers">
+                <div class="topic-icon">🔢</div>
+                <h3>Numbers & Place Value</h3>
+                <p>Count up to 1,000 and beyond!</p>
+                <div class="progress-bar">
+                    <div class="progress" data-progress="numbers"></div>
+                </div>
+            </div>
+        </div>
+    <!-- Topic Teaching Section (moved outside dashboard) -->
+    <div id="topicTeaching" class="screen hidden">
+        <div class="teaching-content">
+            <h2 id="teachingTitle"></h2>
+            <p id="teachingDesc"></p>
+            <div id="teachingVideo"></div>
+            <button id="startQuestionsBtn" class="big-button">Start Questions!</button>
+        </div>
+    </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen" class="screen hidden">
+        <div class="game-header">
+            <button id="backBtn" class="back-btn">⬅️ Back</button>
+            <h2 id="gameTitle">Let's Learn!</h2>
+            <div class="game-stats">
+                <span class="level">Level <span id="currentLevel">1</span></span>
+                <span class="score">Score: <span id="currentScore">0</span></span>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <div id="questionArea">
+                <h3 id="questionText">Ready to start?</h3>
+                <div id="questionDisplay"></div>
+            </div>
+
+            <div id="answerArea">
+                <div id="multipleChoice" class="hidden">
+                    <button class="choice-btn" data-choice="0"></button>
+                    <button class="choice-btn" data-choice="1"></button>
+                    <button class="choice-btn" data-choice="2"></button>
+                    <button class="choice-btn" data-choice="3"></button>
+                </div>
+
+                <div id="directInput" class="hidden">
+                    <input type="number" id="answerInput" placeholder="Type your answer">
+                    <button id="submitBtn" class="big-button">Submit Answer! ✓</button>
+                </div>
+            </div>
+
+            <div id="feedback" class="feedback hidden">
+                <div class="feedback-icon"></div>
+                <p class="feedback-text"></p>
+                <button id="nextBtn" class="big-button">Next Question! →</button>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <div class="question-progress">
+                Question <span id="questionNumber">1</span> of <span id="totalQuestions">10</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress" id="questionProgress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="resultsModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="resultsTitle">Level Complete! 🎉</h2>
+            </div>
+            <div class="modal-body">
+                <div class="results-icon" id="resultsIcon">🌟</div>
+                <div class="results-stats">
+                    <p class="results-score">You got <span id="correctAnswers">0</span> out of <span id="totalAnswers">10</span> questions right!</p>
+                    <p class="results-percentage"><span id="percentageScore">0</span>% correct</p>
+                    <p class="results-points">You earned <span id="pointsEarned">0</span> points!</p>
+                    <p class="results-stars" id="starsEarned"></p>
+                </div>
+                <div class="results-message" id="resultsMessage">
+                    <p id="performanceMessage"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="continueBtn" class="big-button">Continue! 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
