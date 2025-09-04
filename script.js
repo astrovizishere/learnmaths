@@ -60,12 +60,18 @@ function setupEventListeners() {
         document.getElementById('directInput').appendChild(prevDiv);
     }
     // Second chance modal button
-    document.getElementById('tryAgainBtn').addEventListener('click', function() {
-        document.getElementById('secondChanceModal').classList.add('hidden');
-        // Re-show input for another try
-        document.getElementById('directInput').classList.remove('hidden');
-        document.getElementById('submitBtn').style.display = '';
-        document.getElementById('answerInput').focus();
+        document.getElementById('tryAgainBtn').addEventListener('click', function() {
+            // Always clear the answer input for retry
+            var answerInput = document.getElementById('answerInput');
+            if (answerInput) {
+                answerInput.value = '';
+                answerInput.focus();
+            }
+            showPreviousWrongAnswer();
+            document.getElementById('secondChanceModal').classList.add('hidden');
+            // Re-show input for another try
+            document.getElementById('directInput').classList.remove('hidden');
+            document.getElementById('submitBtn').style.display = '';
     });
     // Login screen
     document.getElementById('loginBtn').addEventListener('click', handleLogin);
@@ -697,22 +703,25 @@ function generateNumberQuestions(level) {
 function nextQuestion() {
     // Hide previous wrong answer box for new question
     const prevWrongBox = document.getElementById('previousWrongBox');
+    const prevWrongText = document.getElementById('previousWrongText');
     if (prevWrongBox) prevWrongBox.style.display = 'none';
+    if (prevWrongText) prevWrongText.textContent = '';
+    // Reset second chance for each new question
+    secondChanceActive = false;
     if (currentQuestionIndex >= questions.length) {
         endGame();
         return;
     }
-    
+    // Clear answer input
+    const answerInput = document.getElementById('answerInput');
+    if (answerInput) answerInput.value = '';
     const question = questions[currentQuestionIndex];
     gameMode = question.type;
-    
     document.getElementById('questionNumber').textContent = currentQuestionIndex + 1;
     document.getElementById('questionText').textContent = question.question;
     document.getElementById('questionProgress').style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
-    
     // Hide feedback
     document.getElementById('feedback').classList.add('hidden');
-    
     // Show appropriate answer input
     if (question.type === 'multiple') {
         document.getElementById('multipleChoice').classList.remove('hidden');
@@ -725,8 +734,7 @@ function nextQuestion() {
     } else {
         document.getElementById('directInput').classList.remove('hidden');
         document.getElementById('multipleChoice').classList.add('hidden');
-        const answerInput = document.getElementById('answerInput');
-        answerInput.value = '';
+        if (answerInput) answerInput.value = '';
         // Show submit button for new question
         document.getElementById('submitBtn').style.display = '';
         // Render number pad
@@ -760,6 +768,8 @@ function nextQuestion() {
             numberPad.appendChild(btn);
         });
     }
+    lastWrongAnswer = '';
+    showPreviousWrongAnswer();
 }
 
 function handleMultipleChoice(choiceIndex) {
@@ -796,44 +806,35 @@ function handleDirectAnswer() {
     submitBtn.style.display = 'none';
     let isCorrect = false;
     if (question.type === 'input') {
-        isCorrect = parseInt(userAnswer) === question.answer;
-    } else if (question.type === 'text') {
+        isCorrect = userAnswer == question.answer;
+    } else {
         isCorrect = userAnswer.toLowerCase() === question.answer.toLowerCase();
     }
-    if (!secondChanceActive && !isCorrect) {
-        // First wrong attempt, show second chance modal
-        document.getElementById('secondChanceModal').classList.remove('hidden');
-        document.getElementById('directInput').classList.add('hidden');
-        secondChanceActive = true;
+    if (isCorrect) {
+        lastAttemptCorrect = true;
+        lastWrongAnswer = '';
+        if (prevWrongBox) prevWrongBox.style.display = 'none';
+        if (prevWrongText) prevWrongText.textContent = '';
+        showPreviousWrongAnswer();
+        showFeedback(true);
+        setTimeout(nextQuestion, 1200);
+    } else {
         lastAttemptCorrect = false;
         lastWrongAnswer = userAnswer;
-        return;
+        if (prevWrongBox) {
+            prevWrongBox.style.display = '';
+            if (prevWrongText) prevWrongText.textContent = userAnswer;
+        }
+        if (!secondChanceActive) {
+            secondChanceActive = true;
+            document.getElementById('secondChanceModal').classList.remove('hidden');
+            document.getElementById('tryAgainMessage').textContent = tryAgainMessages[Math.floor(Math.random() * tryAgainMessages.length)];
+            showPreviousWrongAnswer();
+        } else {
+            showFeedback(false);
+            setTimeout(nextQuestion, 1200);
+        }
     }
-    // If second chance is active, this is the second attempt
-    lastAttemptCorrect = isCorrect;
-    showFeedback(isCorrect);
-    // ...existing code...
-    document.getElementById('tryAgainBtn').addEventListener('click', function() {
-        document.getElementById('secondChanceModal').classList.add('hidden');
-        // Re-show input for another try
-        document.getElementById('directInput').classList.remove('hidden');
-        document.getElementById('submitBtn').style.display = '';
-        document.getElementById('answerInput').value = '';
-        document.getElementById('answerInput').focus();
-        // Show previous wrong answer in styled box
-        const prevWrongBox = document.getElementById('previousWrongBox');
-        const prevWrongText = document.getElementById('previousWrongText');
-        prevWrongText.textContent = lastWrongAnswer;
-        prevWrongBox.style.display = 'flex';
-    });
-    document.getElementById('closeWrongAnswerBtn').addEventListener('click', function() {
-        document.getElementById('wrongAnswerModal').classList.add('hidden');
-        // After closing, continue to next question
-        // Hide previous wrong answer display for next question
-        const prevWrongBox = document.getElementById('previousWrongBox');
-        prevWrongBox.style.display = 'none';
-        nextQuestion();
-    });
 }
 
 function showFeedback(isCorrect) {
@@ -913,6 +914,19 @@ function endGame() {
     
     // Show results modal
     showResultsModal(correctAnswers, questions.length, currentScore, starsEarned);
+}
+
+// Show previous wrong answer box
+function showPreviousWrongAnswer() {
+    const previousWrongBox = document.getElementById('previousWrongBox');
+    const previousWrongText = document.getElementById('previousWrongText');
+    if (lastWrongAnswer) {
+        previousWrongBox.style.display = '';
+        previousWrongText.textContent = lastWrongAnswer;
+    } else {
+        previousWrongBox.style.display = 'none';
+        previousWrongText.textContent = '';
+    }
 }
 
 // Utility Functions
